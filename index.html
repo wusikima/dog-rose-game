@@ -2,16 +2,33 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Dog Rose Game - Full Version</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Dog Rose Game - Mobile</title>
   <style>
+    * {
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      -khtml-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
     body {
       margin: 0;
+      padding: 0;
       overflow: hidden;
-      background: #cce7ff;
+      background: linear-gradient(180deg, #87CEEB 0%, #98E4D6 100%);
       height: 100vh;
-      font-family: sans-serif;
+      height: 100dvh; /* Dynamic viewport height for mobile */
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       display: flex;
       flex-direction: column;
+      position: fixed;
+      width: 100%;
+      top: 0;
+      left: 0;
     }
 
     #gameArea {
@@ -19,45 +36,61 @@
       flex: 1;
       width: 100%;
       overflow: hidden;
+      touch-action: none;
     }
 
     .dog {
       position: absolute;
       left: 50%;
-      font-size: 50px;
+      font-size: min(12vw, 60px);
       transform: translateX(-50%);
+      z-index: 10;
+      filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.3));
+      transition: transform 0.1s ease;
+    }
+
+    .dog.jumping {
+      transform: translateX(-50%) scale(1.1);
     }
 
     .petal {
       position: absolute;
-      width: 16px;
-      height: 10px;
-      background: pink;
+      width: min(4vw, 20px);
+      height: min(2.5vw, 12px);
+      background: radial-gradient(ellipse at center, #FFB6C1, #FF69B4);
       border-radius: 50%;
-      opacity: 0.8;
+      opacity: 0.9;
+      filter: drop-shadow(1px 1px 2px rgba(0,0,0,0.2));
     }
 
     #rose {
       position: absolute;
-      top: 10px;
+      top: min(2vh, 20px);
       left: 50%;
       transform: translateX(-50%);
       display: grid;
-      grid-template-columns: repeat(7, 12px);
-      grid-auto-rows: 12px;
-      gap: 2px;
+      grid-template-columns: repeat(7, min(3vw, 15px));
+      grid-auto-rows: min(3vw, 15px);
+      gap: min(0.5vw, 3px);
       z-index: 1000;
+      background: rgba(255,255,255,0.1);
+      padding: min(2vw, 10px);
+      border-radius: min(2vw, 10px);
+      backdrop-filter: blur(5px);
     }
 
     .rose-block {
-      width: 12px;
-      height: 12px;
-      background: lightgray;
+      width: 100%;
+      height: 100%;
+      background: rgba(200,200,200,0.5);
       border-radius: 50%;
+      transition: all 0.3s ease;
     }
 
     .rose-block.filled {
-      background: red;
+      background: radial-gradient(circle, #FF1493, #DC143C);
+      transform: scale(1.1);
+      box-shadow: 0 0 min(2vw, 10px) rgba(255,20,147,0.5);
     }
 
     #message {
@@ -65,32 +98,145 @@
       top: 40%;
       left: 50%;
       transform: translateX(-50%);
-      font-size: 40px;
+      font-size: min(8vw, 40px);
+      font-weight: bold;
+      color: #FF1493;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
       display: none;
+      text-align: center;
+      background: rgba(255,255,255,0.9);
+      padding: min(4vw, 20px);
+      border-radius: min(4vw, 20px);
+      backdrop-filter: blur(10px);
     }
 
-    /* Touch controls */
+    /* Mobile-optimized controls */
     .controls {
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      height: min(20vh, 120px);
       display: flex;
-      justify-content: center;
-      gap: 20px;
-      padding: 10px;
-      background: rgba(255,255,255,0.7);
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 min(5vw, 30px);
+      background: rgba(255,255,255,0.1);
+      backdrop-filter: blur(10px);
+      pointer-events: none;
     }
 
     .btn {
-      width: 80px;
-      height: 80px;
+      width: min(15vw, 80px);
+      height: min(15vw, 80px);
       border-radius: 50%;
-      background: #ff7f7f;
-      font-size: 30px;
+      background: linear-gradient(145deg, #FF6B6B, #FF4757);
+      font-size: min(6vw, 30px);
       font-weight: bold;
       border: none;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+      box-shadow: 0 min(1vw, 6px) min(2vw, 12px) rgba(0,0,0,0.3);
+      pointer-events: auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.1s ease;
+      cursor: pointer;
     }
 
     .btn:active {
-      background: #ff4c4c;
+      background: linear-gradient(145deg, #FF4757, #FF3742);
+      transform: translateY(min(0.5vw, 3px));
+      box-shadow: 0 min(0.5vw, 3px) min(1vw, 6px) rgba(0,0,0,0.3);
+    }
+
+    #jump {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      background: linear-gradient(145deg, #4ECDC4, #44A08D);
+    }
+
+    #jump:active {
+      background: linear-gradient(145deg, #44A08D, #3A8B7A);
+    }
+
+    /* Score display */
+    #score {
+      position: absolute;
+      top: min(2vh, 15px);
+      right: min(4vw, 20px);
+      font-size: min(4vw, 20px);
+      font-weight: bold;
+      color: white;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+      background: rgba(0,0,0,0.3);
+      padding: min(2vw, 8px) min(3vw, 12px);
+      border-radius: min(4vw, 20px);
+      backdrop-filter: blur(5px);
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 480px) {
+      .dog {
+        font-size: 50px;
+      }
+      
+      .controls {
+        height: 100px;
+      }
+      
+      .btn {
+        width: 70px;
+        height: 70px;
+        font-size: 25px;
+      }
+    }
+
+    @media (max-height: 600px) {
+      #rose {
+        top: 10px;
+        grid-template-columns: repeat(7, 12px);
+        grid-auto-rows: 12px;
+        gap: 2px;
+        padding: 8px;
+      }
+      
+      .controls {
+        height: 80px;
+      }
+    }
+
+    /* Prevent scrolling and zooming */
+    html {
+      position: fixed;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    /* Loading animation */
+    .petal-enter {
+      animation: petalDrop 0.5s ease-out;
+    }
+
+    @keyframes petalDrop {
+      from {
+        opacity: 0;
+        transform: scale(0) rotate(0deg);
+      }
+      to {
+        opacity: 0.9;
+        transform: scale(1) rotate(180deg);
+      }
+    }
+
+    /* Jump animation */
+    @keyframes jump {
+      0% { transform: translateX(-50%) scale(1); }
+      50% { transform: translateX(-50%) scale(1.2) rotate(5deg); }
+      100% { transform: translateX(-50%) scale(1); }
+    }
+
+    .dog.jumping {
+      animation: jump 0.3s ease-out;
     }
   </style>
 </head>
@@ -99,32 +245,65 @@
   <div id="gameArea">
     <div id="dog" class="dog">🐶</div>
     <div id="rose"></div>
-    <div id="message">You grew a rose! 🌹</div>
+    <div id="score">Score: 0</div>
+    <div id="message">You grew a beautiful rose! 🌹</div>
   </div>
 
   <div class="controls">
-    <button class="btn" id="left">⬅️</button>
-    <button class="btn" id="jump">⤒</button>
-    <button class="btn" id="right">➡️</button>
+    <button class="btn" id="left">⬅</button>
+    <button class="btn" id="jump">⬆</button>
+    <button class="btn" id="right">➡</button>
   </div>
 
   <script>
+    // Prevent default touch behaviors
+    document.addEventListener('touchstart', e => e.preventDefault(), { passive: false });
+    document.addEventListener('touchmove', e => e.preventDefault(), { passive: false });
+    document.addEventListener('touchend', e => e.preventDefault(), { passive: false });
+
+    // Prevent zoom on double tap
+    let lastTouchEnd = 0;
+    document.addEventListener('touchend', e => {
+      const now = (new Date()).getTime();
+      if (now - lastTouchEnd <= 300) {
+        e.preventDefault();
+      }
+      lastTouchEnd = now;
+    }, false);
+
     const gameArea = document.getElementById("gameArea");
     const dog = document.getElementById("dog");
     const message = document.getElementById("message");
     const roseContainer = document.getElementById("rose");
+    const scoreEl = document.getElementById("score");
 
     let score = 0;
-    let dogX = window.innerWidth / 2;
-    let dogY = window.innerHeight - 160; 
+    let gameWidth = window.innerWidth;
+    let gameHeight = window.innerHeight;
+    let dogX = gameWidth / 2;
+    let dogY = gameHeight - 160; 
     let dx = 0;
     let dy = 0;
     let jumping = false;
+    let gameRunning = true;
+
+    // Responsive sizing
+    function updateGameDimensions() {
+      gameWidth = window.innerWidth;
+      gameHeight = window.innerHeight;
+      dogY = Math.min(dogY, gameHeight - 160);
+      dogX = Math.max(0, Math.min(dogX, gameWidth - 50));
+    }
+
+    window.addEventListener('resize', updateGameDimensions);
+    window.addEventListener('orientationchange', () => {
+      setTimeout(updateGameDimensions, 100);
+    });
 
     dog.style.left = dogX + "px";
     dog.style.top = dogY + "px";
 
-    // Pixel-art rose pattern
+    // Rose pattern
     const rosePattern = [
       [0,0,1,0,1,0,0],
       [0,1,1,1,1,1,0],
@@ -143,37 +322,86 @@
       });
     });
 
-    let roseIndex = 0; // number of filled petals
+    let roseIndex = 0;
 
-    // Keyboard controls
-    document.addEventListener("keydown", e => {
-      if (e.key === "ArrowLeft") dx = -5;
-      if (e.key === "ArrowRight") dx = 5;
-      if (e.key === " " && !jumping) { dy = -12; jumping = true; }
+    // Enhanced touch controls with better feedback
+    const leftBtn = document.getElementById("left");
+    const rightBtn = document.getElementById("right");
+    const jumpBtn = document.getElementById("jump");
+
+    // Touch event handlers with proper passive handling
+    function addTouchControls(element, startAction, endAction) {
+      let isPressed = false;
+
+      const handleStart = (e) => {
+        e.stopPropagation();
+        if (!isPressed) {
+          isPressed = true;
+          startAction();
+          navigator.vibrate && navigator.vibrate(50);
+        }
+      };
+
+      const handleEnd = (e) => {
+        e.stopPropagation();
+        if (isPressed) {
+          isPressed = false;
+          endAction && endAction();
+        }
+      };
+
+      element.addEventListener("touchstart", handleStart, { passive: false });
+      element.addEventListener("touchend", handleEnd, { passive: false });
+      element.addEventListener("touchcancel", handleEnd, { passive: false });
+      
+      // Mouse support for testing
+      element.addEventListener("mousedown", handleStart);
+      element.addEventListener("mouseup", handleEnd);
+      element.addEventListener("mouseleave", handleEnd);
+    }
+
+    addTouchControls(leftBtn, () => dx = -6, () => dx = 0);
+    addTouchControls(rightBtn, () => dx = 6, () => dx = 0);
+    addTouchControls(jumpBtn, () => {
+      if (!jumping && gameRunning) {
+        dy = -14;
+        jumping = true;
+        dog.classList.add('jumping');
+        setTimeout(() => dog.classList.remove('jumping'), 300);
+      }
     });
+
+    // Keyboard controls (for testing on desktop)
+    document.addEventListener("keydown", e => {
+      if (!gameRunning) return;
+      if (e.key === "ArrowLeft") dx = -6;
+      if (e.key === "ArrowRight") dx = 6;
+      if (e.key === " " && !jumping) { 
+        e.preventDefault();
+        dy = -14; 
+        jumping = true; 
+        dog.classList.add('jumping');
+        setTimeout(() => dog.classList.remove('jumping'), 300);
+      }
+    });
+
     document.addEventListener("keyup", e => {
       if (e.key === "ArrowLeft" || e.key === "ArrowRight") dx = 0;
     });
 
-    // Touch controls
-    document.getElementById("left").addEventListener("touchstart", () => dx = -5);
-    document.getElementById("left").addEventListener("touchend", () => dx = 0);
-    document.getElementById("right").addEventListener("touchstart", () => dx = 5);
-    document.getElementById("right").addEventListener("touchend", () => dx = 0);
-    document.getElementById("jump").addEventListener("touchstart", () => {
-      if (!jumping) { dy = -12; jumping = true; }
-    });
-
-    // Create fluttering pink petals
+    // Enhanced petal creation with better mobile performance
     function createPetal() {
-      const petal = document.createElement("div");
-      petal.className = "petal";
+      if (!gameRunning) return;
 
-      const startX = Math.random() * (window.innerWidth - 16);
-      let top = 0;
+      const petal = document.createElement("div");
+      petal.className = "petal petal-enter";
+
+      const startX = Math.random() * (gameWidth - 20);
+      let top = -20;
       let angle = Math.random() * 2 * Math.PI;
-      const amplitude = 20 + Math.random() * 10;
-      const speed = 0.05 + Math.random() * 0.03;
+      const amplitude = 15 + Math.random() * 15;
+      const speed = 0.04 + Math.random() * 0.02;
+      const fallSpeed = 3 + Math.random() * 2;
 
       petal.style.left = startX + "px";
       petal.style.top = top + "px";
@@ -181,55 +409,83 @@
       gameArea.appendChild(petal);
 
       const fall = setInterval(() => {
-        top += 5;
+        top += fallSpeed;
         angle += speed;
         petal.style.top = top + "px";
         petal.style.left = startX + Math.sin(angle) * amplitude + "px";
+        petal.style.transform = `rotate(${angle * 57.3}deg)`;
 
+        // Optimized collision detection
         const petalRect = petal.getBoundingClientRect();
         const dogRect = dog.getBoundingClientRect();
 
-        // Collision
         if (
-          petalRect.bottom >= dogRect.top &&
-          petalRect.left < dogRect.right &&
-          petalRect.right > dogRect.left
+          petalRect.bottom >= dogRect.top + 10 &&
+          petalRect.top <= dogRect.bottom - 10 &&
+          petalRect.left < dogRect.right - 10 &&
+          petalRect.right > dogRect.left + 10
         ) {
           score++;
+          scoreEl.textContent = `Score: ${score}`;
           petal.remove();
           clearInterval(fall);
 
-          // Fill rose block
+          // Visual feedback
+          if (navigator.vibrate) navigator.vibrate(30);
+
+          // Fill rose block with animation
           if (roseIndex < roseBlocks.length) {
             roseBlocks[roseIndex].classList.add("filled");
             roseIndex++;
           }
 
-          // Show final message
-          if (roseIndex >= roseBlocks.length) {
+          // Show completion message
+          if (roseIndex >= roseBlocks.length && gameRunning) {
+            gameRunning = false;
             message.style.display = "block";
+            if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
           }
         }
 
-        if (top > window.innerHeight) {
+        if (top > gameHeight + 20) {
           petal.remove();
           clearInterval(fall);
         }
-      }, 50);
+      }, 16); // 60fps target
     }
 
-    setInterval(createPetal, 800);
+    // Adaptive petal creation rate
+    let petalInterval = setInterval(createPetal, 1000);
+
+    // Adjust difficulty over time
+    setTimeout(() => {
+      clearInterval(petalInterval);
+      petalInterval = setInterval(createPetal, 800);
+    }, 10000);
+
+    setTimeout(() => {
+      clearInterval(petalInterval);
+      petalInterval = setInterval(createPetal, 600);
+    }, 30000);
 
     function update() {
+      if (!gameRunning) return;
+
       dogX += dx;
       dogY += dy;
-      dy += 0.6; // gravity
+      dy += 0.7; // slightly stronger gravity for mobile
 
-      const ground = window.innerHeight - 160;
-      if(dogY >= ground) { dogY = ground; dy = 0; jumping = false; }
+      const ground = gameHeight - 140;
+      if(dogY >= ground) { 
+        dogY = ground; 
+        dy = 0; 
+        jumping = false; 
+      }
 
-      if(dogX < 0) dogX = 0;
-      if(dogX > window.innerWidth - 50) dogX = window.innerWidth - 50;
+      // Screen boundary constraints
+      const dogWidth = 50;
+      if(dogX < dogWidth/2) dogX = dogWidth/2;
+      if(dogX > gameWidth - dogWidth/2) dogX = gameWidth - dogWidth/2;
 
       dog.style.left = dogX + "px";
       dog.style.top = dogY + "px";
@@ -237,7 +493,25 @@
       requestAnimationFrame(update);
     }
 
+    // Start the game
+    updateGameDimensions();
     update();
+
+    // Performance monitoring
+    let lastFrame = performance.now();
+    function checkPerformance() {
+      const now = performance.now();
+      const delta = now - lastFrame;
+      if (delta > 32) { // If frame rate drops below 30fps
+        // Reduce visual effects
+        document.querySelectorAll('.petal').forEach(p => {
+          p.style.filter = 'none';
+        });
+      }
+      lastFrame = now;
+      requestAnimationFrame(checkPerformance);
+    }
+    checkPerformance();
   </script>
 </body>
 </html>
