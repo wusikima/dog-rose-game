@@ -72,6 +72,8 @@
     }
 
     #rose {
+      background: transparent;
+  backdrop-filter: none;
       position: absolute;
       top: min(2vh, 20px);
       left: 50%;
@@ -118,10 +120,10 @@
 }
 
 #message img {
-  width: 400px;  /* large PNG */
-  height: 400px;
+  width: 300px;  /* large PNG */
+  height: 300px;
   object-fit: contain;
-  margin-bottom: 20px;
+  margin-bottom: 5px;
 }
 
 #message div {
@@ -269,7 +271,7 @@
     <div id="rose"></div>
     <div id="score">Score: 0</div>
     <div id="message">
-  <img id="message-img" src="flower.png" alt="Figure" style="display:none; max-width:400px; margin-bottom:10px;">
+  <img id="message-img" src="flower.png" alt="Figure" style="display:none; max-width:300px; margin-bottom:5px;">
   <div id="message-text"></div>
 </div>
   </div>
@@ -517,7 +519,7 @@ if (roseIndex >= roseBlocks.length - 20 && gameRunning) {
       dogY += dy;
       dy += 0.7; // slightly stronger gravity for mobile
 
-      const ground = gameHeight - 200;
+      const ground = gameHeight - 250;
       if(dogY >= ground) { 
         dogY = ground; 
         dy = 0; 
