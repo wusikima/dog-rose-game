@@ -127,19 +127,19 @@
 
 
     /* Mobile-optimized controls */
-    .controls {
-      position: absolute;
-      bottom: 0;
-      width: 100%;
-      height: min(20vh, 120px);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 min(5vw, 30px);
-      background: rgba(255,255,255,0.1);
-      backdrop-filter: blur(10px);
-      pointer-events: none;
-    }
+.controls {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 20vh; /* use viewport height */
+  display: flex;
+  align-items: center;
+  justify-content: space-around; /* automatically spaces buttons evenly */
+  padding: 0 5vw; /* horizontal padding based on viewport width */
+  background: rgba(255,255,255,0.1);
+  backdrop-filter: blur(10px);
+  pointer-events: none;
+}
 
     .btn {
       width: min(15vw, 80px);
@@ -459,7 +459,7 @@
           }
 
           // Show completion message
-          if (roseIndex >= roseBlocks.length - 20 && gameRunning) {
+          if (roseIndex >= roseBlocks.length && gameRunning) {
   gameRunning = false;
 
   const messageImg = document.getElementById("message-img");
