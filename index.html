@@ -71,28 +71,25 @@
       filter: drop-shadow(1px 1px 2px rgba(0,0,0,0.2));
     }
 
-    #rose {
-      background: transparent;
-  backdrop-filter: none;
-      position: absolute;
-      top: min(2vh, 20px);
-      left: 50%;
-      transform: translateX(-50%);
-      display: grid;
-      grid-template-columns: repeat(7, min(3vw, 15px));
-      grid-auto-rows: min(3vw, 15px);
-      gap: min(0.5vw, 3px);
-      z-index: 1000;
-      background: rgba(255,255,255,0.1);
-      padding: min(2vw, 10px);
-      border-radius: min(2vw, 10px);
-      backdrop-filter: blur(5px);
-    }
-
+#rose {
+  position: absolute;
+  top: min(2vh, 20px);
+  left: 50%;
+  transform: translateX(-50%);
+  display: grid;
+  grid-template-columns: repeat(7, min(3vw, 15px));
+  grid-auto-rows: min(3vw, 15px);
+  gap: min(0.5vw, 3px);
+  padding: 0; /* remove padding that creates box space */
+  background: transparent; /* remove semi-transparent white */
+  border-radius: 0; /* optional: remove rounded corners */
+  backdrop-filter: none; /* remove blur effect */
+  z-index: 1000;
+}
     .rose-block {
       width: 100%;
       height: 100%;
-      background: rgba(200,200,200,0.5);
+      background: transparent;
       border-radius: 50%;
       transition: all 0.3s ease;
     }
@@ -137,16 +134,14 @@
     /* Mobile-optimized controls */
 .controls {
   position: absolute;
-  bottom: 0;
-  width: 100%;
-  height: 20vh; /* use viewport height */
+  bottom: 11%; /* move controls to vertical center */
+  left: 50%;
+  transform: translate(-50%, 50%); /* center horizontally and adjust vertically */
+  width: 60%; /* width of the button group */
   display: flex;
+  justify-content: space-between; /* evenly space buttons across the container */
   align-items: center;
-  justify-content: space-around; /* automatically spaces buttons evenly */
-  padding: 0 5vw; /* horizontal padding based on viewport width */
-  background: rgba(255,255,255,0.1);
-  backdrop-filter: blur(10px);
-  pointer-events: none;
+  pointer-events: none; /* container itself ignores clicks */
 }
 
     .btn {
@@ -467,7 +462,7 @@
           }
 
           // Show completion message
-if (roseIndex >= roseBlocks.length - 20 && gameRunning) {
+if (roseIndex >= roseBlocks.length && gameRunning) {
   gameRunning = false;
 
   const messageImg = document.getElementById("message-img");
