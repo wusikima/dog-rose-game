@@ -264,7 +264,7 @@
   <div id="gameArea">
     <img id="dog" class="dog" src="dog.png" alt="Dog">
     <div id="rose"></div>
-    <div id="score">Score: 0</div>
+    <div id="score">Time: 0s</div>
     <div id="message">
   <img id="message-img" src="flower.png" alt="Figure" style="display:none; max-width:300px; margin-bottom:5px;">
   <div id="message-text"></div>
@@ -298,6 +298,25 @@
     const message = document.getElementById("message");
     const roseContainer = document.getElementById("rose");
     const scoreEl = document.getElementById("score");
+let startTime = null;
+let timerInterval;
+
+// Start the timer
+function startTimer() {
+  startTime = Date.now();
+  timerInterval = setInterval(() => {
+    const elapsed = Math.floor((Date.now() - startTime) / 1000); // seconds
+    scoreEl.textContent = `Time: ${elapsed}s`;
+  }, 1000);
+}
+
+// Stop the timer (when rose is finished or game ends)
+function stopTimer() {
+  clearInterval(timerInterval);
+}
+
+// Call startTimer when game begins
+startTimer();
 
     let score = 0;
     let gameWidth = window.innerWidth;
@@ -464,7 +483,7 @@
           // Show completion message
 if (roseIndex >= roseBlocks.length && gameRunning) {
   gameRunning = false;
-
+stopTimer();
   const messageImg = document.getElementById("message-img");
   const messageText = document.getElementById("message-text");
 
