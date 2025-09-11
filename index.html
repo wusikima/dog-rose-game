@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Dog Rose Game - Full Version</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background: #cce7ff;
+      height: 100vh;
+      font-family: sans-serif;
+      display: flex;
+      flex-direction: column;
+    }
+
+    #gameArea {
+      position: relative;
+      flex: 1;
+      width: 100%;
+      overflow: hidden;
+    }
+
+    .dog {
+      position: absolute;
+      left: 50%;
+      font-size: 50px;
+      transform: translateX(-50%);
+    }
+
+    .petal {
+      position: absolute;
+      width: 16px;
+      height: 10px;
+      background: pink;
+      border-radius: 50%;
+      opacity: 0.8;
+    }
+
+    #rose {
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: grid;
+      grid-template-columns: repeat(7, 12px);
+      grid-auto-rows: 12px;
+      gap: 2px;
+      z-index: 1000;
+    }
+
+    .rose-block {
+      width: 12px;
+      height: 12px;
+      background: lightgray;
+      border-radius: 50%;
+    }
+
+    .rose-block.filled {
+      background: red;
+    }
+
+    #message {
+      position: absolute;
+      top: 40%;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 40px;
+      display: none;
+    }
+
+    /* Touch controls */
+    .controls {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      padding: 10px;
+      background: rgba(255,255,255,0.7);
+    }
+
+    .btn {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: #ff7f7f;
+      font-size: 30px;
+      font-weight: bold;
+      border: none;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+    }
+
+    .btn:active {
+      background: #ff4c4c;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="gameArea">
+    <div id="dog" class="dog">🐶</div>
+    <div id="rose"></div>
+    <div id="message">You grew a rose! 🌹</div>
+  </div>
+
+  <div class="controls">
+    <button class="btn" id="left">⬅️</button>
+    <button class="btn" id="jump">⤒</button>
+    <button class="btn" id="right">➡️</button>
+  </div>
+
+  <script>
+    const gameArea = document.getElementById("gameArea");
+    const dog = document.getElementById("dog");
+    const message = document.getElementById("message");
+    const roseContainer = document.getElementById("rose");
+
+    let score = 0;
+    let dogX = window.innerWidth / 2;
+    let dogY = window.innerHeight - 160; 
+    let dx = 0;
+    let dy = 0;
+    let jumping = false;
+
+    dog.style.left = dogX + "px";
+    dog.style.top = dogY + "px";
+
+    // Pixel-art rose pattern
+    const rosePattern = [
+      [0,0,1,0,1,0,0],
+      [0,1,1,1,1,1,0],
+      [1,1,1,1,1,1,1],
+      [0,1,1,1,1,1,0],
+      [0,0,1,1,1,0,0]
+    ];
+
+    const roseBlocks = [];
+    rosePattern.forEach(row => {
+      row.forEach(cell => {
+        const block = document.createElement("div");
+        block.className = "rose-block";
+        if(cell === 1) roseBlocks.push(block);
+        roseContainer.appendChild(block);
+      });
+    });
+
+    let roseIndex = 0; // number of filled petals
+
+    // Keyboard controls
+    document.addEventListener("keydown", e => {
+      if (e.key === "ArrowLeft") dx = -5;
+      if (e.key === "ArrowRight") dx = 5;
+      if (e.key === " " && !jumping) { dy = -12; jumping = true; }
+    });
+    document.addEventListener("keyup", e => {
+      if (e.key === "ArrowLeft" || e.key === "ArrowRight") dx = 0;
+    });
+
+    // Touch controls
+    document.getElementById("left").addEventListener("touchstart", () => dx = -5);
+    document.getElementById("left").addEventListener("touchend", () => dx = 0);
+    document.getElementById("right").addEventListener("touchstart", () => dx = 5);
+    document.getElementById("right").addEventListener("touchend", () => dx = 0);
+    document.getElementById("jump").addEventListener("touchstart", () => {
+      if (!jumping) { dy = -12; jumping = true; }
+    });
+
+    // Create fluttering pink petals
+    function createPetal() {
+      const petal = document.createElement("div");
+      petal.className = "petal";
+
+      const startX = Math.random() * (window.innerWidth - 16);
+      let top = 0;
+      let angle = Math.random() * 2 * Math.PI;
+      const amplitude = 20 + Math.random() * 10;
+      const speed = 0.05 + Math.random() * 0.03;
+
+      petal.style.left = startX + "px";
+      petal.style.top = top + "px";
+      petal.style.transform = `rotate(${Math.random()*360}deg)`;
+      gameArea.appendChild(petal);
+
+      const fall = setInterval(() => {
+        top += 5;
+        angle += speed;
+        petal.style.top = top + "px";
+        petal.style.left = startX + Math.sin(angle) * amplitude + "px";
+
+        const petalRect = petal.getBoundingClientRect();
+        const dogRect = dog.getBoundingClientRect();
+
+        // Collision
+        if (
+          petalRect.bottom >= dogRect.top &&
+          petalRect.left < dogRect.right &&
+          petalRect.right > dogRect.left
+        ) {
+          score++;
+          petal.remove();
+          clearInterval(fall);
+
+          // Fill rose block
+          if (roseIndex < roseBlocks.length) {
+            roseBlocks[roseIndex].classList.add("filled");
+            roseIndex++;
+          }
+
+          // Show final message
+          if (roseIndex >= roseBlocks.length) {
+            message.style.display = "block";
+          }
+        }
+
+        if (top > window.innerHeight) {
+          petal.remove();
+          clearInterval(fall);
+        }
+      }, 50);
+    }
+
+    setInterval(createPetal, 800);
+
+    function update() {
+      dogX += dx;
+      dogY += dy;
+      dy += 0.6; // gravity
+
+      const ground = window.innerHeight - 160;
+      if(dogY >= ground) { dogY = ground; dy = 0; jumping = false; }
+
+      if(dogX < 0) dogX = 0;
+      if(dogX > window.innerWidth - 50) dogX = window.innerWidth - 50;
+
+      dog.style.left = dogX + "px";
+      dog.style.top = dogY + "px";
+
+      requestAnimationFrame(update);
+    }
+
+    update();
+  </script>
+</body>
+</html>
