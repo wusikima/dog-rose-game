@@ -269,7 +269,7 @@
     <div id="rose"></div>
     <div id="score">Score: 0</div>
     <div id="message">
-  <img id="message-img" src="flower.png" alt="Figure" style="display:none; max-width:500px; margin-bottom:10px;">
+  <img id="message-img" src="flower.png" alt="Figure" style="display:none; max-width:400px; margin-bottom:10px;">
   <div id="message-text"></div>
 </div>
   </div>
@@ -465,22 +465,28 @@
           }
 
           // Show completion message
-          if (roseIndex >= roseBlocks.length && gameRunning) {
+if (roseIndex >= roseBlocks.length - 20 && gameRunning) {
   gameRunning = false;
 
   const messageImg = document.getElementById("message-img");
   const messageText = document.getElementById("message-text");
 
-  messageImg.style.display = "block"; // show PNG
-  messageText.innerHTML = "小狗给你带了一只玫瑰!"; // line below
+  // Hide both initially
+  messageImg.style.display = "none";
+  messageText.innerHTML = "";
 
-  message.style.display = "flex";
-  message.style.flexDirection = "column";
-  message.style.alignItems = "center";
-  message.style.justifyContent = "center";
+  message.style.display = "flex"; // container visible
 
+  // Vibrate for feedback
   if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+
+  // Delay before showing both image and text
+  setTimeout(() => {
+    messageImg.style.display = "block"; // show image
+    messageText.innerHTML = "小狗给你带了一只玫瑰! <br>────────────"; // show text + line
+  }, 1000); // pause 1 second (adjust as needed)
 }
+
         }
 
         if (top > gameHeight + 20) {
