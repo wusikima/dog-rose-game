@@ -301,11 +301,12 @@
 let startTime = null;
 let timerInterval;
 
+let elapsed = 0;
 // Start the timer
 function startTimer() {
   startTime = Date.now();
   timerInterval = setInterval(() => {
-    const elapsed = Math.floor((Date.now() - startTime) / 1000); // seconds
+    elapsed = Math.floor((Date.now() - startTime) / 1000); // seconds
     scoreEl.textContent = `Time: ${elapsed}s`;
   }, 1000);
 }
@@ -467,7 +468,7 @@ startTimer();
           petalRect.right > dogRect.left + 10
         ) {
           score++;
-          scoreEl.textContent = `Score: ${score}`;
+          scoreEl.textContent = `Time: ${elapsed}s`;
           petal.remove();
           clearInterval(fall);
 
@@ -481,7 +482,7 @@ startTimer();
           }
 
           // Show completion message
-if (roseIndex >= roseBlocks.length && gameRunning) {
+if (roseIndex >= roseBlocks.length -20 && gameRunning) {
   gameRunning = false;
 stopTimer();
   const messageImg = document.getElementById("message-img");
