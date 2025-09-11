@@ -39,18 +39,20 @@
       touch-action: none;
     }
 
-    .dog {
-      position: absolute;
-      left: 50%;
-      font-size: min(12vw, 60px);
-      transform: translateX(-50%);
-      z-index: 10;
-      filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.3));
-      transition: transform 0.1s ease;
-    }
+.dog {
+  position: absolute;
+  left: 50%;
+  width: min(16vw, 80px); /* larger dog */
+  height: auto;
+  transform: translateX(-50%);
+  z-index: 10;
+  filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.3));
+  transition: transform 0.1s ease;
+}
 
     .dog.jumping {
       transform: translateX(-50%) scale(1.1);
+      animation: jump 0.3s ease-out;
     }
 
     .petal {
@@ -93,22 +95,36 @@
       box-shadow: 0 0 min(2vw, 10px) rgba(255,20,147,0.5);
     }
 
-    #message {
-      position: absolute;
-      top: 40%;
-      left: 50%;
-      transform: translateX(-50%);
-      font-size: min(8vw, 40px);
-      font-weight: bold;
-      color: #FF1493;
-      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-      display: none;
-      text-align: center;
-      background: rgba(255,255,255,0.9);
-      padding: min(4vw, 20px);
-      border-radius: min(4vw, 20px);
-      backdrop-filter: blur(10px);
-    }
+#message {
+  position: absolute;
+  top: 15%; /* higher on screen */
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255,255,255,0.9);
+  padding: 30px 40px; /* more room for big image */
+  border-radius: 20px;
+  backdrop-filter: blur(10px);
+  z-index: 2000;
+}
+
+#message img {
+  width: 400px;  /* large PNG */
+  height: 400px;
+  object-fit: contain;
+  margin-bottom: 20px;
+}
+
+#message div {
+  font-size: 32px; /* fixed pixel size for text */
+  font-weight: bold;
+  color: #cc6666;
+  text-align: center;
+}
+
 
     /* Mobile-optimized controls */
     .controls {
@@ -243,10 +259,13 @@
 <body>
 
   <div id="gameArea">
-    <div id="dog" class="dog">🐶</div>
+    <img id="dog" class="dog" src="dog.png" alt="Dog">
     <div id="rose"></div>
     <div id="score">Score: 0</div>
-    <div id="message">You grew a beautiful rose! 🌹</div>
+    <div id="message">
+  <img id="message-img" src="flower.png" alt="Figure" style="display:none; max-width:500px; margin-bottom:10px;">
+  <div id="message-text"></div>
+</div>
   </div>
 
   <div class="controls">
@@ -281,7 +300,7 @@
     let gameWidth = window.innerWidth;
     let gameHeight = window.innerHeight;
     let dogX = gameWidth / 2;
-    let dogY = gameHeight - 160; 
+    let dogY = gameHeight - 300; 
     let dx = 0;
     let dy = 0;
     let jumping = false;
@@ -440,11 +459,22 @@
           }
 
           // Show completion message
-          if (roseIndex >= roseBlocks.length && gameRunning) {
-            gameRunning = false;
-            message.style.display = "block";
-            if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
-          }
+          if (roseIndex >= roseBlocks.length - 20 && gameRunning) {
+  gameRunning = false;
+
+  const messageImg = document.getElementById("message-img");
+  const messageText = document.getElementById("message-text");
+
+  messageImg.style.display = "block"; // show PNG
+  messageText.innerHTML = "小狗给你带了一只玫瑰!"; // line below
+
+  message.style.display = "flex";
+  message.style.flexDirection = "column";
+  message.style.alignItems = "center";
+  message.style.justifyContent = "center";
+
+  if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+}
         }
 
         if (top > gameHeight + 20) {
@@ -475,7 +505,7 @@
       dogY += dy;
       dy += 0.7; // slightly stronger gravity for mobile
 
-      const ground = gameHeight - 140;
+      const ground = gameHeight - 200;
       if(dogY >= ground) { 
         dogY = ground; 
         dy = 0; 
